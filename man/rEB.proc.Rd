@@ -23,7 +23,8 @@ rEB.proc(X, z, X.target, z.target, m = c(6, 8), niter = NULL, centering = 'LP',
   \item{z.target}{the target \eqn{z} to investigate}
   \item{m}{An ordered pair. First number indicates how many LP-nonparametric basis to construct for each \eqn{X}, second number indicates how many to construct for \eqn{z}.}
   \item{niter}{Number of iterations to use for Finite Bayes, set to \code{NULL} to disable.}
-    \item{centering}{Centering method for z with respect to covariates, default is \code{LP}, which uses LP regression; \code{lm} uses simple linear regression, and \code{spline} uses spline smoothing. Set to \code{NULL} to disable}
+    \item{centering}{Centering method for z with respect to covariates, default is \code{LP}, which uses LP regression; \code{lm} uses simple linear regression, and \code{spline} uses spline smoothing. Set to \code{NULL} to disable. Note: 
+\code{spline} option only works for univariate \code{X}.}
   \item{coef.smooth}{Specifies the method to use for LP coefficient smoothing (AIC or BIC). Uses BIC by default.}
   \item{nsample}{Number of relevance samples generated for the target case.}
   \item{theta.set.prior}{This indicates the set of grid points to compute prior density.}

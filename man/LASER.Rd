@@ -17,7 +17,8 @@ LASER(nsample = length(z), X, z, X.target, m = c(6, 8), centering = 'LP',
   \item{z}{A length \eqn{n} vector containing observations of z values.}
   \item{X.target}{A \eqn{k}-by-\eqn{d} matrix providing k sets of target points for which the LASERs are required.}
   \item{m}{An ordered pair. First number indicates how many LP-nonparametric basis to construct for each \eqn{X}, second number indicates how many to construct for \eqn{z}. Default: \code{m=c(6,8)}}
-    \item{centering}{Centering method for z with respect to covariates, default is \code{LP}, which uses LP regression; \code{lm} uses simple linear regression, and \code{spline} uses spline smoothing. Set to \code{NULL} to disable}
+  \item{centering}{Centering method for z with respect to covariates, default is \code{LP}, which uses LP regression; \code{lm} uses simple linear regression, and \code{spline} uses spline smoothing. Set to \code{NULL} to disable. Note: 
+\code{spline} option only works for univariate \code{X}.}
   \item{coef.smooth}{Specifies the method to use for LP coefficient smoothing (AIC or BIC). Uses BIC by default.}
   \item{parallel}{Use parallel computing for obtaining the relevance samples, mainly used for very huge \code{nsample}, default if FALSE.}
 }

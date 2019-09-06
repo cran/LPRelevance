@@ -31,7 +31,8 @@ g2l.proc(X, z, X.target = NULL, z.target = NULL, m = c(6, 8), alpha = 0.05,
   \item{nsample}{Number of relevance samples generated for each case.}
   \item{approx.method}{Method used to approximate customized fdr curve, default is "direct".When set to "indirect", the customized fdr is computed by modifying pooled fdr using comparison density.}
   \item{ngrid}{Number of gridpoints to use for computing customized fdr curve.}
-  \item{centering}{Centering method for z with respect to covariates, default is \code{LP}, which uses LP regression; \code{lm} uses simple linear regression, and \code{spline} uses spline smoothing. Set to \code{NULL} to disable}
+  \item{centering}{Centering method for z with respect to covariates, default is \code{LP}, which uses LP regression; \code{lm} uses simple linear regression, and \code{spline} uses spline smoothing. Set to \code{NULL} to disable. Note: 
+\code{spline} option only works for univariate \code{X}.}
   \item{coef.smooth}{Specifies the method to use for LP coefficient smoothing (AIC or BIC). Uses BIC by default.}
   \item{fdr.method}{Method for controlling false discoveries (either "locfdr" or "BH"), default choice is "locfdr".}
   \item{plot}{Whether to include plots in the results, default is \code{TRUE}.}

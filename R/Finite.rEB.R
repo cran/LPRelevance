@@ -5,11 +5,11 @@ Finite.rEB <-function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alp
   X<-as.matrix(X)
   n<-length(z)
   z.target<-z0
-  X.target<-X0
-  
+  X.target<-matrix(X0,ncol=ncol(X))
+  zm.target<-0
+  zmean<-rep(0,length(z))
   if(is.null(centering)){
     y<-z
-    zmean<-rep(0,length(z))
   }else if(centering=='LP'){
     Tx<-eLP.poly(X,m.obs[1])
     reg.dat=as.data.frame(cbind(z,Tx))
@@ -17,21 +17,40 @@ Finite.rEB <-function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alp
     fit1 <- leaps::regsubsets(z~., data = reg.dat,intercept=TRUE,really.big=big.flag)
     id<-which.min(summary(fit1)$bic)
     coefi <- coef(fit1, id = id)
-    zmean=cbind(rep(1,n),matrix(Tx[,names(coefi)[-1]],n,length(coefi)-1))%*%as.matrix(coefi)
-    y<-z-zmean
+	if(length(names(coefi))<1){
+	  zmean<-0
+	  zm.target<-0
+	}else{
+	  zmean=cbind(rep(1,n),matrix(Tx[,names(coefi)[-1]],n,length(coefi)-1))%*%as.matrix(coefi)
+	  y<-z-zmean
+	  ## predicting z mean at x.target:
+	  mi<-rep(1,ncol(X)+1)
+	  Txapprox=matrix(0,1,ncol(Tx))
+	  colnames(Txapprox)<-colnames(Tx)
+	  for(i in 1:ncol(X)){
+        mi[i+1]<-min(m.obs[1],length(unique(X[,i]))-1)
+        Txi<-Predict.LP.poly(X[,i],as.matrix(Tx[,sum(mi[1:i]):(sum(mi[1:(i+1)])-1)]),X.target[,i])
+        Txapprox[,sum(mi[1:i]):(sum(mi[1:(i+1)])-1)]=Txi
+	  }
+	  zm.target<-cbind(1,matrix(Txapprox[,names(coefi)[-1]],nrow=1))%*%as.matrix(coefi)
+	}
   }else if(centering=='lm'){
 	lmfit<-lm(z~X)
 	zmean<-fitted(lmfit)
 	y<-z-zmean
+	zm.target<-matrix(c(1,X.target),nrow=1)%*%as.matrix(lmfit$coefficients)
   }else if(centering=='spline' & ncol(X)==1){
-	splinfit<-smooth.spline(X,z,df=8)
+	x1<-as.numeric(X)
+	splinfit<-smooth.spline(x1,z,df=8)
 	zmean<-fitted(splinfit)
 	y<-z-zmean
+	xnew<-data.frame(x1=as.numeric(X.target))
+	zm.target<-predict(splinfit,xnew)$y
   }
+  zm.target<-as.numeric(zm.target)
   
   Lcoef<-LPcden(X,y,m=m.obs,X.test=X0,method=coef.smooth)
-  zmean.ind<-which(apply(X,1,function(x) all(x==X.target)))
-  y.target<-z.target-zmean[zmean.ind][1]
+  y.target<-z.target-zm.target
   
   no_iter_flag<-0;global_flag<-0 ##when using global observation, break the loop
   if(sum(abs(Lcoef))==0){no_iter_flag<-1;global_flag<-1;B=1}
@@ -58,11 +77,10 @@ Finite.rEB <-function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alp
     }
     check.passed<-0
 	if(global_flag==1){
-		z.sample<-y+zmean[zmean.ind][1]
+		z.sample<-y+zm.target
 	}else{
 		y.sample<-g2l.sampler(nsample,LP.par=t(Lcoef),Y=y,clusters=cl)
-		zmean.ind<-which(apply(X,1,function(x) all(x==X.target)))
-		z.sample<-y.sample+zmean[zmean.ind][1]
+		z.sample<-y.sample+zm.target
     }
     if(is.null(sd0)){
       if(length(z.sample)>=500){
