@@ -5,7 +5,6 @@
 \alias{fdr.thresh}
 \alias{get_bh_threshold}
 \alias{getNullProb}
-\alias{Predict.LP.poly}
 
 \title{
 Procedures for global and local inference.
@@ -70,7 +69,7 @@ Mukhopadhyay, S., and Wang, K (2019) "On The Problem of Relevance in Statistical
 \author{
 Mukhopadhyay, S. and Wang, K.
 
-Maintainer: Kaijun Wang <kaijunwang.19@gmail.com>
+Maintainer: Kaijun Wang <kwang2@fredhutch.org>
 }
 
 \examples{
@@ -98,9 +97,9 @@ g2l_micro$micro$global
 
 
 \donttest{
-data(RAZOR)
-X<-RAZOR$x
-z<-RAZOR$z
+data(funnel)
+X<-funnel$x
+z<-funnel$z
 ##macro-inference using locfdr and LASER:
 g2l_macro<-g2l.proc(X,z,m=c(4,8),niter=NULL,alpha=.05,
 fdr.method = 'locfdr',parallel=FALSE)

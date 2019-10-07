@@ -1,5 +1,5 @@
-\name{RAZOR}
-\alias{RAZOR}
+\name{funnel}
+\alias{funnel}
 \docType{data}
 \title{
 Simulation data set.
@@ -7,9 +7,9 @@ Simulation data set.
 \description{
 A simulated heterogeneous data set.
 }
-\usage{data("RAZOR")}
+\usage{data("funnel")}
 \format{
-  A data frame with 3525 observations on the following 3 variables.
+  A data frame with 3565 observations on the following 3 variables.
   \describe{
     \item{\code{x}}{A list of covariate values.}
     \item{\code{z}}{A list of z-values.}

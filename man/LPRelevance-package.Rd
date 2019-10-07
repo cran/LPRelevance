@@ -4,7 +4,11 @@
 \alias{LPcden}
 \alias{eLP.poly}
 \alias{eLP.univar}
+\alias{LPregression}
+\alias{Predict.LP.poly}
+\alias{eLP.poly.predict}
 \alias{LP.smooth}
+
 \docType{package}
 \title{
 \packageTitle{LPRelevance}
@@ -22,7 +26,7 @@ simultaneous) and microscopic (individual-level) scale.
 \author{
 Mukhopadhyay, S. and Wang, K.
 
-Maintainer: Kaijun Wang <kaijunwang.19@gmail.com>
+Maintainer: Kaijun Wang <kwang2@fredhutch.org>
 }
 \references{
 Mukhopadhyay, S., and Wang, K (2019) "On The Problem of Relevance in Statistical Inference". Technical Report. 

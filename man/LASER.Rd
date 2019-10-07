@@ -34,7 +34,7 @@ Mukhopadhyay, S., and Wang, K (2019) "On The Problem of Relevance in Statistical
 \author{
 Mukhopadhyay, S. and Wang, K.
 
-Maintainer: Kaijun Wang <kaijunwang.19@gmail.com>
+Maintainer: Kaijun Wang <kwang2@fredhutch.org>
 }
 \examples{
 
@@ -52,9 +52,9 @@ sample.x<-LASER(X=x,z=z,X.target=1,m=c(4,8),centering=NULL,parallel=FALSE)$data
 hist(sample.x,50)
 
 \donttest{
-data(RAZOR)
-X<-RAZOR$x
-z<-RAZOR$stat
+data(funnel)
+X<-funnel$x
+z<-funnel$stat
 sample.x30<-LASER(X,z,X.target=30,m=c(4,8))$data
 hist(sample.x30,50)
 }

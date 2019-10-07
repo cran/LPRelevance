@@ -1,8 +1,8 @@
-
-g2l.proc <-function(X,z,X.target=NULL,z.target=NULL,m=c(6,8),alpha=.05,niter=NULL,nsample=length(z), 
-                   approx.method="direct",ngrid=2000,centering='LP', coef.smooth='BIC',
-                   fdr.method='locfdr', plot=TRUE, rel.null='custom',
-                   locfdr.df=10,fdr.th.fixed=NULL,parallel=TRUE){
+g2l.proc <-
+function(X,z,X.target=NULL,z.target=NULL,m=c(6,8),alpha=.05,niter=NULL,nsample=length(z), 
+                    approx.method="direct",ngrid=2000,centering='LP', coef.smooth='BIC',
+                    fdr.method='locfdr', plot=TRUE, rel.null='custom',
+                    locfdr.df=10,fdr.th.fixed=NULL,parallel=TRUE){
   X<-as.matrix(X)
   if(ncol(X)>1){plot.macro=FALSE}else{plot.macro=TRUE}
   
@@ -15,8 +15,8 @@ g2l.proc <-function(X,z,X.target=NULL,z.target=NULL,m=c(6,8),alpha=.05,niter=NUL
   }
   
   out<-list()
-   ##for ggplot variables, avoiding CRAN check notes:
-	x<-tags<-score<-value<-variable<-ystart<-yend<-NULL
+  ##for ggplot variables, avoiding CRAN check notes:
+  x<-tags<-score<-value<-variable<-ystart<-yend<-NULL
   
   ##determine whether use g2l.infer.boot
   iter.flag=0

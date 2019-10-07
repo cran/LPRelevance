@@ -1,11 +1,13 @@
-Finite.rEB <-function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alpha=.8,centering='LP',coef.smooth='BIC',
-                     theta.set.prior=seq(-2.5*sd(z),2.5*sd(z),length.out=100),LP.type ='L2',g.method='DL',
-                     theta.set.post=seq(z0-2.5*sd(z),z0+2.5*sd(z),length.out=100),sd0=NULL,m.obs=c(6,8),m.EB=8,parallel=FALSE,
-                     max.iter=B+1000){
+Finite.rEB <-
+function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alpha=.8,centering='LP',coef.smooth='BIC',
+                      theta.set.prior=seq(-2.5*sd(z),2.5*sd(z),length.out=100),LP.type ='L2',g.method='DL',
+                      theta.set.post=seq(z0-2.5*sd(z),z0+2.5*sd(z),length.out=100),sd0=NULL,m.obs=c(6,8),m.EB=8,parallel=FALSE,
+                      max.iter=B+1000){
   X<-as.matrix(X)
   n<-length(z)
   z.target<-z0
   X.target<-matrix(X0,ncol=ncol(X))
+  
   zm.target<-0
   zmean<-rep(0,length(z))
   if(is.null(centering)){
@@ -17,37 +19,38 @@ Finite.rEB <-function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alp
     fit1 <- leaps::regsubsets(z~., data = reg.dat,intercept=TRUE,really.big=big.flag)
     id<-which.min(summary(fit1)$bic)
     coefi <- coef(fit1, id = id)
-	if(length(names(coefi))<1){
-	  zmean<-0
-	  zm.target<-0
-	}else{
-	  zmean=cbind(rep(1,n),matrix(Tx[,names(coefi)[-1]],n,length(coefi)-1))%*%as.matrix(coefi)
-	  y<-z-zmean
-	  ## predicting z mean at x.target:
-	  mi<-rep(1,ncol(X)+1)
-	  Txapprox=matrix(0,1,ncol(Tx))
-	  colnames(Txapprox)<-colnames(Tx)
-	  for(i in 1:ncol(X)){
+    if(length(names(coefi))<1){
+      zmean<-0
+      zm.target<-0
+    }else{
+      zmean=cbind(rep(1,n),matrix(Tx[,names(coefi)[-1]],n,length(coefi)-1))%*%as.matrix(coefi)
+      y<-z-zmean
+      ## predicting z mean at x.target:
+      mi<-rep(1,ncol(X)+1)
+      Txapprox=matrix(0,1,ncol(Tx))
+      colnames(Txapprox)<-colnames(Tx)
+      for(i in 1:ncol(X)){
         mi[i+1]<-min(m.obs[1],length(unique(X[,i]))-1)
         Txi<-Predict.LP.poly(X[,i],as.matrix(Tx[,sum(mi[1:i]):(sum(mi[1:(i+1)])-1)]),X.target[,i])
         Txapprox[,sum(mi[1:i]):(sum(mi[1:(i+1)])-1)]=Txi
-	  }
-	  zm.target<-cbind(1,matrix(Txapprox[,names(coefi)[-1]],nrow=1))%*%as.matrix(coefi)
-	}
+      }
+      zm.target<-cbind(1,matrix(Txapprox[,names(coefi)[-1]],nrow=1))%*%as.matrix(coefi)
+    }
   }else if(centering=='lm'){
-	lmfit<-lm(z~X)
-	zmean<-fitted(lmfit)
-	y<-z-zmean
-	zm.target<-matrix(c(1,X.target),nrow=1)%*%as.matrix(lmfit$coefficients)
+    lmfit<-lm(z~X)
+    zmean<-fitted(lmfit)
+    y<-z-zmean
+    zm.target<-matrix(c(1,X.target),nrow=1)%*%as.matrix(lmfit$coefficients)
   }else if(centering=='spline' & ncol(X)==1){
-	x1<-as.numeric(X)
-	splinfit<-smooth.spline(x1,z,df=8)
-	zmean<-fitted(splinfit)
-	y<-z-zmean
-	xnew<-data.frame(x1=as.numeric(X.target))
-	zm.target<-predict(splinfit,xnew)$y
+    x1<-as.numeric(X)
+    splinfit<-smooth.spline(x1,z,df=8)
+    zmean<-fitted(splinfit)
+    y<-z-zmean
+    xnew<-data.frame(x1=as.numeric(X.target))
+    zm.target<-predict(splinfit,xnew)$y
   }
   zm.target<-as.numeric(zm.target)
+  
   
   Lcoef<-LPcden(X,y,m=m.obs,X.test=X0,method=coef.smooth)
   y.target<-z.target-zm.target
@@ -71,69 +74,69 @@ Finite.rEB <-function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alp
   
   pb<-txtProgressBar(min=0,max=B,style=3)
   for(iter in 1:max.iter){
-	tryCatch({
-    if(nval>=B){
-      break;
-    }
-    check.passed<-0
-	if(global_flag==1){
-		z.sample<-y+zm.target
-	}else{
-		y.sample<-g2l.sampler(nsample,LP.par=t(Lcoef),Y=y,clusters=cl)
-		z.sample<-y.sample+zm.target
-    }
-    if(is.null(sd0)){
-      if(length(z.sample)>=500){
-        sd0<-locfdr::locfdr(z.sample,bre=200,df=10,nulltype=1,plot=0)$fp0[3,2]
+    tryCatch({
+      if(nval>=B){
+        break;
+      }
+      check.passed<-0
+      if(global_flag==1){
+        z.sample<-y+zm.target
       }else{
-        sd0<-IQR(z.sample)/1.3489
+        y.sample<-g2l.sampler(nsample,LP.par=t(Lcoef),Y=y,clusters=cl)
+        z.sample<-y.sample+zm.target
       }
-    }
-    
-    data.z <- cbind(z.sample,rep(sd0,nsample))
-    if(gpar=='sample'){
-      reb.start <- BayesGOF::gMLE.nn(data.z[,1], data.z[,2], method = g.method)$estimate
-    }else{
-      if(length(z)>=500){
-        sd0<-locfdr::locfdr(z,bre=200,df=10,nulltzpe=1,plot=0)$fp0[3,2]
-      }else{
-        sd0<-IQR(z)/1.3489
+      if(is.null(sd0)){
+        if(length(z.sample)>=500){
+          sd0<-locfdr::locfdr(z.sample,bre=200,df=10,nulltype=1,plot=0)$fp0[3,2]
+        }else{
+          sd0<-IQR(z.sample)/1.3489
+        }
       }
-      reb.start<-BayesGOF::gMLE.nn(z, rep(sd0,length(z)), method = g.method)$estimate
-    }
-    
-    if(reb.start[2]!=0){
-      reb.ds.L2 <- BayesGOF::DS.prior(data.z, max.m = m.EB, g.par = reb.start, family = "Normal", LP.type = LP.type)
-      if(sum(abs(reb.ds.L2$LP.par))<50){
-        check.passed<-1
-      }else if(no_iter_flag==1){
-        stop("Please use LP.type='L2'")
-      }
-    }
-    
-    if(check.passed==1){  
-	  
-      nval<-nval+1
-      reb.micro.z0_1 <- BayesGOF::DS.micro.inf(reb.ds.L2, y.0=z.target, n.0=sd0)
-      reb.micro.z0<-LP.post.conv(theta.set.post, reb.ds.L2, y.0=z.target, n.0=sd0)
-	  if(is.null(reb.ds.L2$prior.fit$ds.prior)){
-		reb.ds.L2$prior.fit$ds.prior<-reb.ds.L2$prior.fit$parm.prior
-	  }
-	  if(is.null(reb.micro.z0$ds.pos)){
-		reb.micro.z0$ds.pos<-reb.micro.z0$parm.pos
-	  }
       
-      prior.fit.list[nval,]<-approx(x=reb.ds.L2$prior.fit$theta.vals,y=reb.ds.L2$prior.fit$ds.prior,
-                                    xout=theta.set.prior,method='linear',rule=2)$y
-      prior.parm.list[nval,]<-approx(x=reb.ds.L2$prior.fit$theta.vals,y=reb.ds.L2$prior.fit$parm.prior,
-                                     xout=theta.set.prior,method='linear',rule=2)$y
-      post.fit.list[nval,]<-reb.micro.z0$ds.pos
-      post.parm.list[nval,]<-reb.micro.z0$parm.pos
-      post.mean[ nval]<-reb.micro.z0_1$DS.mean
-      setTxtProgressBar(pb,nval)
-    }
-    if(no_iter_flag==1){break}
-	},error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+      data.z <- cbind(z.sample,rep(sd0,nsample))
+      if(gpar=='sample'){
+        reb.start <- BayesGOF::gMLE.nn(data.z[,1], data.z[,2], method = g.method)$estimate
+      }else{
+        if(length(z)>=500){
+          sd0<-locfdr::locfdr(z,bre=200,df=10,nulltzpe=1,plot=0)$fp0[3,2]
+        }else{
+          sd0<-IQR(z)/1.3489
+        }
+        reb.start<-BayesGOF::gMLE.nn(z, rep(sd0,length(z)), method = g.method)$estimate
+      }
+      
+      if(reb.start[2]!=0){
+        reb.ds.L2 <- BayesGOF::DS.prior(data.z, max.m = m.EB, g.par = reb.start, family = "Normal", LP.type = LP.type)
+        if(sum(abs(reb.ds.L2$LP.par))<50){
+          check.passed<-1
+        }else if(no_iter_flag==1){
+          stop("Please use LP.type='L2'")
+        }
+      }
+      
+      if(check.passed==1){  
+        
+        nval<-nval+1
+        reb.micro.z0_1 <- BayesGOF::DS.micro.inf(reb.ds.L2, y.0=z.target, n.0=sd0)
+        reb.micro.z0<-LP.post.conv(theta.set.post, reb.ds.L2, y.0=z.target, n.0=sd0)
+        if(is.null(reb.ds.L2$prior.fit$ds.prior)){
+          reb.ds.L2$prior.fit$ds.prior<-reb.ds.L2$prior.fit$parm.prior
+        }
+        if(is.null(reb.micro.z0$ds.pos)){
+          reb.micro.z0$ds.pos<-reb.micro.z0$parm.pos
+        }
+        
+        prior.fit.list[nval,]<-approx(x=reb.ds.L2$prior.fit$theta.vals,y=reb.ds.L2$prior.fit$ds.prior,
+                                      xout=theta.set.prior,method='linear',rule=2)$y
+        prior.parm.list[nval,]<-approx(x=reb.ds.L2$prior.fit$theta.vals,y=reb.ds.L2$prior.fit$parm.prior,
+                                       xout=theta.set.prior,method='linear',rule=2)$y
+        post.fit.list[nval,]<-reb.micro.z0$ds.pos
+        post.parm.list[nval,]<-reb.micro.z0$parm.pos
+        post.mean[ nval]<-reb.micro.z0_1$DS.mean
+        setTxtProgressBar(pb,nval)
+      }
+      if(no_iter_flag==1){break}
+    },error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
   }
   
   if(parallel==TRUE){

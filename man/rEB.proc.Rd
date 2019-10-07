@@ -60,7 +60,7 @@ Mukhopadhyay, S., and Wang, K (2019) "On The Problem of Relevance in Statistical
 \author{
 Mukhopadhyay, S. and Wang, K.
 
-Maintainer: Kaijun Wang <kaijunwang.19@gmail.com>
+Maintainer: Kaijun Wang <kwang2@fredhutch.org>
 }
 
 \examples{
@@ -81,9 +81,9 @@ rEB.out$plots$rEB.prior
 rEB.out$plots$rEB.post
 
 \donttest{
-data(RAZOR)
-X<-RAZOR$x
-z<-RAZOR$stat
+data(funnel)
+X<-funnel$x
+z<-funnel$stat
 X.target=30
 z.target=4.09
 rEB.out<-rEB.proc(X,z,X.target,z.target,m=c(4,8),

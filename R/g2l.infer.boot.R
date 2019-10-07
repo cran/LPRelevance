@@ -1,7 +1,7 @@
 g2l.infer.boot <-
 function(X,z,m=c(6,8),X.test=NULL,alpha=.1,B=100,nsample=length(z), fdr.curve.approx=c("direct", "indirect"),
-                         ngrid=2000,centering='LP', locfdr.df=10,fdr.th.fixed=NULL, coef.smooth='BIC',
-                         rel.null=c('custom','th'),parallel=FALSE){
+                          ngrid=2000,centering='LP', locfdr.df=10,fdr.th.fixed=NULL, coef.smooth='BIC',
+                          rel.null=c('custom','th'),parallel=FALSE){
   X<-as.matrix(X)
   
   n<-length(z)
@@ -23,13 +23,13 @@ function(X,z,m=c(6,8),X.test=NULL,alpha=.1,B=100,nsample=length(z), fdr.curve.ap
     zmean=cbind(rep(1,n),matrix(Tx[,names(coefi)[-1]],n,length(coefi)-1))%*%as.matrix(coefi)
     y<-z-zmean
   }else if(centering=='lm'){
-	lmfit<-lm(z~X)
-	zmean<-fitted(lmfit)
-	y<-z-zmean
+    lmfit<-lm(z~X)
+    zmean<-fitted(lmfit)
+    y<-z-zmean
   }else if(centering=='spline'& ncol(X)==1){
-	splinfit<-smooth.spline(X,z,df=8)
-	zmean<-fitted(splinfit)
-	y<-z-zmean
+    splinfit<-smooth.spline(X,z,df=8)
+    zmean<-fitted(splinfit)
+    y<-z-zmean
   }
   
   bre<-200;df<-locfdr.df
@@ -66,7 +66,7 @@ function(X,z,m=c(6,8),X.test=NULL,alpha=.1,B=100,nsample=length(z), fdr.curve.ap
   setTxtProgressBar(pb,0)
   
   for(i in 1:nrow(X.test)){
-  
+    
     iX.test<-X.test[i,]
     ind0<-which.min(apply(X.axe,1,function(x) sum(abs(x-iX.test))))
     x0<-matrix(X.axe[ind0,],nrow=length(ind0))
@@ -83,25 +83,25 @@ function(X,z,m=c(6,8),X.test=NULL,alpha=.1,B=100,nsample=length(z), fdr.curve.ap
     }else{
       lpfdrmat0<-matrix(0,B,ngrid)
       for(iter in 1:B){  
-	  tryCatch({
-        y.sample<-g2l.sampler(nsample,LP.par=t(Lcoef),Y=y,clusters=cl)
-        ygrid<-seq(min(y.sample,y[zmean.ind]),max(y.sample,y[zmean.ind]),length.out=ngrid)
-        w0 <- locfdr::locfdr(y.sample,bre=bre,df=df,nulltype=nulltype,plot=0)
-        parms0<-w0$fp0[2*nulltype+1,]
-        if(fdr.curve.approx=='direct'){
-          lpfdr_iter<-approxfun(y.sample,w0$fdr,method='linear',rule=2)
-        }else if(fdr.curve.approx=='indirect'){
-          if(parms0[3]>1){parms0[3]<-1}
-          fdr.y0<-fdr.pool(y)*(parms0[3]/p0.pool[3])*
-            (dnorm(y,mean=parms0[1],sd=parms0[2])/
-               dnorm(y,mean=p0.pool[1],sd=p0.pool[2]))/
-            (1+Lcoef%*%t(Ty))
-          fdr.y0[which(fdr.y0>=1)]<-1
-          lpfdr_iter<-approxfun(y,fdr.y0,method='linear',rule=2)
-        }
-        lpfdrmat0[iter,]<-lpfdr_iter(ygrid)
-        setTxtProgressBar(pb,B*(i-1)+iter)
-		},error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+        tryCatch({
+          y.sample<-g2l.sampler(nsample,LP.par=t(Lcoef),Y=y,clusters=cl)
+          ygrid<-seq(min(y.sample,y[zmean.ind]),max(y.sample,y[zmean.ind]),length.out=ngrid)
+          w0 <- locfdr::locfdr(y.sample,bre=bre,df=df,nulltype=nulltype,plot=0)
+          parms0<-w0$fp0[2*nulltype+1,]
+          if(fdr.curve.approx=='direct'){
+            lpfdr_iter<-approxfun(y.sample,w0$fdr,method='linear',rule=2)
+          }else if(fdr.curve.approx=='indirect'){
+            if(parms0[3]>1){parms0[3]<-1}
+            fdr.y0<-fdr.pool(y)*(parms0[3]/p0.pool[3])*
+              (dnorm(y,mean=parms0[1],sd=parms0[2])/
+                 dnorm(y,mean=p0.pool[1],sd=p0.pool[2]))/
+              (1+Lcoef%*%t(Ty))
+            fdr.y0[which(fdr.y0>=1)]<-1
+            lpfdr_iter<-approxfun(y,fdr.y0,method='linear',rule=2)
+          }
+          lpfdrmat0[iter,]<-lpfdr_iter(ygrid)
+          setTxtProgressBar(pb,B*(i-1)+iter)
+        },error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
       }
       lpfdr0<-approxfun(ygrid,colSums(lpfdrmat0)/B,method='linear',rule=2)
     }

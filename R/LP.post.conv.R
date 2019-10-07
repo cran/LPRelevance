@@ -22,14 +22,14 @@ function(theta.set, DS.GF.obj, y.0, n.0 = NULL,
     unit.grid <- pnorm(theta.set, DS.GF.obj$g.par[1], 
                        sd = sqrt(DS.GF.obj$g.par[2]))
     wght.den <- BayesGOF::weight.fun.univ(unit.grid, DS.GF.obj$g.par[1], 
-                                DS.GF.obj$g.par[2], post.mu.i, post.tau2.i, 
-                                family = fam)
+                                          DS.GF.obj$g.par[2], post.mu.i, post.tau2.i, 
+                                          family = fam)
     if (DS.GF.obj$LP.type == "L2") {
       d.u <- 1 + BayesGOF::gLP.basis(unit.grid, c(1, 1), DS.GF.obj$m.val, 
-                           con.prior = "Beta") %*% DS.GF.obj$LP.par
+                                     con.prior = "Beta") %*% DS.GF.obj$LP.par
     } else {
       d.u <- exp(cbind(1, BayesGOF::gLP.basis(unit.grid, c(1, 
-                                                 1), DS.GF.obj$m.val, con.prior = "Beta")) %*% 
+                                                           1), DS.GF.obj$m.val, con.prior = "Beta")) %*% 
                    DS.GF.obj$LP.par)
     }
     denom <- Bolstad2::sintegral(unit.grid, d.u * wght.den)$int
