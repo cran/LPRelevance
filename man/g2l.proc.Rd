@@ -13,32 +13,35 @@ Procedures for global and local inference.
 This function performs customized fdr analyses tailored to each individual cases.
 }
 \usage{
-g2l.proc(X, z, X.target = NULL, z.target = NULL, m = c(6, 8), alpha = 0.05, 
-	niter = NULL, nsample = length(z), approx.method = "direct",
-	ngrid = 2000, centering = 'LP', coef.smooth='BIC', 
-	fdr.method = "locfdr", plot = TRUE, rel.null = "custom", 
-	locfdr.df = 10, fdr.th.fixed = NULL, parallel = TRUE)
+g2l.proc(X, z, X.target = NULL, z.target = NULL, m = c(4, 6), alpha = 0.05, 
+	niter = NULL, nsample = length(z), lp.reg.method = "lm", 
+	null.scale = "QQ", approx.method = "direct", ngrid = 2000, 
+	centering = TRUE, coef.smooth = "BIC", fdr.method = "locfdr", 
+	plot = TRUE, rel.null = "custom", locfdr.df = 10, 
+	fdr.th.fixed = NULL, parallel = TRUE, ...)
 }
 \arguments{
   \item{X}{A \eqn{n}-by-\eqn{d} matrix of covariate values}
   \item{z}{A length \eqn{n} vector containing observations of z values.}
   \item{X.target}{A \eqn{k}-by-\eqn{d} matrix providing \eqn{k} sets of covariates for target cases to investigate. Set to NULL to investigate all cases and provide global inference results.}
   \item{z.target}{A vector of length \eqn{k}, providing the target \eqn{z} values to investigate}
-  \item{m}{An ordered pair. First number indicates how many LP-nonparametric basis to construct for each \eqn{X}, second number indicates how many to construct for \eqn{z}. Default: \code{m=c(6,8)}.}
+  \item{m}{An ordered pair. First number indicates how many LP-nonparametric basis to construct for each \eqn{X}, second number indicates how many to construct for \eqn{z}. Default: \code{m=c(4,6)}.}
   \item{alpha}{Confidence level for determining signals.}
   \item{niter}{Number of iterations to use for each target case, each time a new set of relevance samples will be generated for analysis, and the resulting fdr curves are aggregated together by taking the mean values. Set to \code{NULL} to disable.}
-  \item{nsample}{Number of relevance samples generated for each case.}
-  \item{approx.method}{Method used to approximate customized fdr curve, default is "direct".When set to "indirect", the customized fdr is computed by modifying pooled fdr using comparison density.}
+  \item{nsample}{Number of relevance samples generated for each case. The default is the size of the input z-statistic.}
+  \item{lp.reg.method}{Method for estimating the relevance function and its conditional LP-Fourier coefficients. We currently support thee options: lm (inbuilt with subset selection), glmnet, and knn.}
+  \item{null.scale}{Method of estimating null standard deviation from the laser samples. Available options: "IQR", "QQ" and "locfdr"}
+  \item{approx.method}{Method used to approximate customized fdr curve, default is "direct".When set to "indirect", the customized fdr is computed by modifying pooled fdr using relevant density function.}
   \item{ngrid}{Number of gridpoints to use for computing customized fdr curve.}
-  \item{centering}{Centering method for z with respect to covariates, default is \code{LP}, which uses LP regression; \code{lm} uses simple linear regression, and \code{spline} uses spline smoothing. Set to \code{NULL} to disable. Note: 
-\code{spline} option only works for univariate \code{X}.}
+  \item{centering}{Whether to perform regression-adjustment to center the data, default is TRUE.}
   \item{coef.smooth}{Specifies the method to use for LP coefficient smoothing (AIC or BIC). Uses BIC by default.}
   \item{fdr.method}{Method for controlling false discoveries (either "locfdr" or "BH"), default choice is "locfdr".}
   \item{plot}{Whether to include plots in the results, default is \code{TRUE}.}
-  \item{rel.null}{Indicates how null hypothesis behaves with respect to \eqn{X}: case-relevant (\code{custom}) or fixed standard normal (\code{th}). By default the hypothesis changes with different cases of \eqn{X}.}
+  \item{rel.null}{How the relevant null changes with x: "custom" denotes we allow it to vary with x, and "th" denotes fixed.}
   \item{locfdr.df}{Degrees of freedom to use for \code{locfdr()}}
   \item{fdr.th.fixed}{Use fixed fdr threshold for finding signals. Default set to \code{NULL}, which finds different thresholds for different cases. }
   \item{parallel}{Use parallel computing for obtaining the relevance samples, mainly used for very huge \code{nsample}, default if FALSE.}
+  \item{...}{Extra parameters to pass to other functions. Currently only supports the arguments for \code{knn()}.}
 }
 
 \value{
@@ -64,7 +67,7 @@ A list containing the following items:
 }
 
 \references{
-Mukhopadhyay, S., and Wang, K (2019) "On The Problem of Relevance in Statistical Inference". Technical Report. 
+Mukhopadhyay, S., and Wang, K (2020) "On The Problem of Relevance in Statistical Inference". Technical Report. 
 }
 \author{
 Mukhopadhyay, S. and Wang, K.
@@ -73,29 +76,6 @@ Maintainer: Kaijun Wang <kwang2@fredhutch.org>
 }
 
 \examples{
-##Toy data
-set.seed(20)
-x<-rep(c(1:10),rep(50,10))
-sig<-sapply(x,FUN=function(x){min(x,5)})
-z<-rnorm(500,0,sig)
-out<-rnorm(10,10,.1)
-x<-c(x,rep(1,10))
-z<-c(z,out);z<-z/sd(z)
-
-##macro inference
-g2l_macro<-g2l.proc(x,z,niter=NULL,alpha=.05, nsample=500, centering=NULL,
-	fdr.method = 'locfdr',parallel=FALSE)
-g2l_macro$macro$plots
-
-#micro-inference at x=1,z=2.3:
-x.target=1
-z.target=2.3
-g2l_micro<-g2l.proc(x,z,x.target,z.target,niter = 10,m=c(4,8),alpha=.05,
-	centering=NULL,parallel=FALSE)
-g2l_micro$micro$result
-g2l_micro$micro$global
-
-
 \donttest{
 data(funnel)
 X<-funnel$x

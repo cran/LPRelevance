@@ -1,8 +1,15 @@
 Finite.rEB <-
-function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alpha=.8,centering='LP',coef.smooth='BIC',
+function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), lp.reg.method='lm',
+                      post.alpha=.8,centering=TRUE,coef.smooth='BIC',
                       theta.set.prior=seq(-2.5*sd(z),2.5*sd(z),length.out=100),LP.type ='L2',g.method='DL',
                       theta.set.post=seq(z0-2.5*sd(z),z0+2.5*sd(z),length.out=100),sd0=NULL,m.obs=c(6,8),m.EB=8,parallel=FALSE,
-                      max.iter=B+1000){
+                      max.iter=B+1000,...){
+  
+  extraparms<-list(...)
+  if(is.null(extraparms$k) & lp.reg.method=='knn'){
+    extraparms$k<-sqrt(length(z))
+  }
+  
   X<-as.matrix(X)
   n<-length(z)
   z.target<-z0
@@ -10,49 +17,19 @@ function(X,z,X0,z0,gpar='sample', B=50, nsample=length(z), post.alpha=.8,centeri
   
   zm.target<-0
   zmean<-rep(0,length(z))
-  if(is.null(centering)){
+  if(centering==FALSE){
     y<-z
-  }else if(centering=='LP'){
+  }else{
     Tx<-eLP.poly(X,m.obs[1])
-    reg.dat=as.data.frame(cbind(z,Tx))
-    if(ncol(Tx)>50){big.flag=TRUE}else{big.flag=FALSE}
-    fit1 <- leaps::regsubsets(z~., data = reg.dat,intercept=TRUE,really.big=big.flag)
-    id<-which.min(summary(fit1)$bic)
-    coefi <- coef(fit1, id = id)
-    if(length(names(coefi))<1){
-      zmean<-0
-      zm.target<-0
-    }else{
-      zmean=cbind(rep(1,n),matrix(Tx[,names(coefi)[-1]],n,length(coefi)-1))%*%as.matrix(coefi)
-      y<-z-zmean
-      ## predicting z mean at x.target:
-      mi<-rep(1,ncol(X)+1)
-      Txapprox=matrix(0,1,ncol(Tx))
-      colnames(Txapprox)<-colnames(Tx)
-      for(i in 1:ncol(X)){
-        mi[i+1]<-min(m.obs[1],length(unique(X[,i]))-1)
-        Txi<-Predict.LP.poly(X[,i],as.matrix(Tx[,sum(mi[1:i]):(sum(mi[1:(i+1)])-1)]),X.target[,i])
-        Txapprox[,sum(mi[1:i]):(sum(mi[1:(i+1)])-1)]=Txi
-      }
-      zm.target<-cbind(1,matrix(Txapprox[,names(coefi)[-1]],nrow=1))%*%as.matrix(coefi)
-    }
-  }else if(centering=='lm'){
-    lmfit<-lm(z~X)
-    zmean<-fitted(lmfit)
-    y<-z-zmean
-    zm.target<-matrix(c(1,X.target),nrow=1)%*%as.matrix(lmfit$coefficients)
-  }else if(centering=='spline' & ncol(X)==1){
-    x1<-as.numeric(X)
-    splinfit<-smooth.spline(x1,z,df=8)
-    zmean<-fitted(splinfit)
-    y<-z-zmean
-    xnew<-data.frame(x1=as.numeric(X.target))
-    zm.target<-predict(splinfit,xnew)$y
+    centerproc<-z.lp.center(X,Tx,z,lp.reg.method,X.target,m.obs,extraparms)
+    y<-centerproc$y
+    z.mu.test<-centerproc$z.mu.test
+    zmean<-centerproc$zmean
+    zm.target<-as.numeric(z.mu.test)
   }
-  zm.target<-as.numeric(zm.target)
   
   
-  Lcoef<-LPcden(X,y,m=m.obs,X.test=X0,method=coef.smooth)
+  Lcoef<-LPcden(X,y,m=m.obs,X.test=X0,method=lp.reg.method,lp.smooth=coef.smooth,k=extraparms$k)
   y.target<-z.target-zm.target
   
   no_iter_flag<-0;global_flag<-0 ##when using global observation, break the loop

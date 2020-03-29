@@ -1,42 +1,48 @@
 g2l.infer <-
-function(X,z,X.test=NULL,m=c(6,8),alpha=.1,nsample=length(z), fdr.curve.approx="direct",
-           ngrid=2000,centering='LP',fdr.method="locfdr", locfdr.df=10, coef.smooth='BIC',
-           fdr.th.fixed=NULL,rel.null='custom',parallel=FALSE){
+function(X,z,X.test=NULL,m=c(6,8),alpha=.1,nsample=length(z), lp.reg.method='lm',
+           fdr.curve.approx="direct",null.scale='QQ',
+           ngrid=2000,centering=TRUE,fdr.method="locfdr", locfdr.df=10, coef.smooth='BIC',
+           fdr.th.fixed=NULL,rel.null='custom',parallel=FALSE,...){
+    
+    extraparms<-list(...)
+    if(is.null(extraparms$k) & lp.reg.method=='knn'){
+      extraparms$k<-sqrt(length(z))
+    }
+    
     X<-as.matrix(X)
     n<-length(z)
     X.axe<-unique(X)
     if(is.null(X.test)){X.test<-X.axe}
     
     #centralize
-    if(is.null(centering)){
+    if(centering==FALSE){
       y<-z
       zmean<-rep(0,length(z))
-    }else if(centering=='LP'){
+    }else{
       Tx<-eLP.poly(X,m[1])
-      reg.dat=as.data.frame(cbind(z,Tx))
-      if(ncol(Tx)>50){big.flag=TRUE}else{big.flag=FALSE}
-      fit1 <- leaps::regsubsets(z~., data = reg.dat,intercept=TRUE,really.big=big.flag)
-      id<-which.min(summary(fit1)$bic)
-      coefi <- coef(fit1, id = id)
-      zmean=cbind(rep(1,n),matrix(Tx[,names(coefi)[-1]],n,length(coefi)-1))%*%as.matrix(coefi)
-      y<-z-zmean
-    }else if(centering=='lm'){
-      lmfit<-lm(z~X)
-      zmean<-fitted(lmfit)
-      y<-z-zmean
-    }else if(centering=='spline' & ncol(X)==1){
-      splinfit<-smooth.spline(X,z,df=8)
-      zmean<-fitted(splinfit)
-      y<-z-zmean
+      centerproc<-z.lp.center(X,Tx,z,lp.reg.method,X.test,m,extraparms)
+      y<-centerproc$y
+      zmean<-centerproc$zmean
     }
     
     bre<-200;df<-locfdr.df
     if(rel.null=='th'){nulltype<-0}else{nulltype<-1}
     
     if(fdr.method=='locfdr'){
-      w.full<-locfdr::locfdr(y,bre=bre,df=df,nulltype=nulltype,plot=0)
+      if(null.scale=='locfdr'){
+        w.full<-locfdr::locfdr(y,bre=bre,df=df,nulltype=nulltype,plot=0)
+        p0.pool<-w.full$fp0[2*nulltype+1,]
+      }else if(null.scale=='IQR'){
+        sd0<-IQR(y)/(2 * qnorm(0.75)) 
+        w.full<-locfdr::locfdr(y/sd0,df=df,nulltype=0,plot=0)
+        p0.pool<-c(0,sd0,w.full$fp0[1,3])
+      }else if(null.scale=='QQ'){
+        qn<-qqnorm(y,plot.it = FALSE)
+        sd0 <- as.vector(MASS::rlm(qn$y~qn$x,psi =psi.bisquare,method='MM',maxit=100)$coef)[2]
+        w.full<-locfdr::locfdr(y/sd0,df=df,nulltype=0,plot=0)
+        p0.pool<-c(0,sd0,w.full$fp0[1,3])
+      }
       fdr.pool<-approxfun(y,w.full$fdr,method='linear',rule=2)
-      p0.pool<-w.full$fp0[2*nulltype+1,]
       if(p0.pool[3]>1){p0.pool[3]<-1}
     }
     
@@ -71,7 +77,7 @@ function(X,z,X.test=NULL,m=c(6,8),alpha=.1,nsample=length(z), fdr.curve.approx="
         x0<-matrix(X.axe[ind0,],nrow=length(ind0))
         zmean.ind<-which(apply(X,1,function(x) all(x==x0)))
         
-        Lcoef<-LPcden(X,y,m,X.test=x0,method=coef.smooth)
+        Lcoef<-LPcden(X,y,m,X.test=x0,method=lp.reg.method,lp.smooth=coef.smooth,k=extraparms$k)
         
         if(fdr.method=='locfdr'){
           if(sum(abs(Lcoef))==0){
@@ -82,8 +88,22 @@ function(X,z,X.test=NULL,m=c(6,8),alpha=.1,nsample=length(z), fdr.curve.approx="
           }else{
             y.sample<-g2l.sampler(nsample,LP.par=t(Lcoef),Y=y,clusters=cl)
             ygrid<-seq(min(y.sample,y[zmean.ind]),max(y.sample,y[zmean.ind]),length.out=ngrid)
-            w0 <- locfdr::locfdr(y.sample,bre=bre,df=df,nulltype=nulltype,plot=0)
-            parms0<-w0$fp0[2*nulltype+1,]
+            
+            if(null.scale=='locfdr'){
+              w0 <- locfdr::locfdr(y.sample,bre=bre,df=df,nulltype=nulltype,plot=0)
+              parms0<-w0$fp0[2*nulltype+1,]
+            }else if(null.scale=='IQR'){
+              sd0<-IQR(y.sample)/(2 * qnorm(0.75)) 
+              y.sample0<-y.sample/sd0
+              w0 <- locfdr::locfdr(y.sample0,bre=bre,df=df,nulltype=0,plot=0)
+              parms0<-c(0,sd0,w0$fp0[1,3])
+            }else if(null.scale=='QQ'){
+              qn<-qqnorm(y.sample,plot.it = FALSE)
+              sd0 <- as.vector(MASS::rlm(qn$y~qn$x,psi =psi.bisquare,method='MM',maxit=100)$coef)[2]
+              y.sample0<-y.sample/sd0
+              w0 <- locfdr::locfdr(y.sample0,bre=bre,df=df,nulltype=0,plot=0)
+              parms0<-c(0,sd0,w0$fp0[1,3])
+            }
             if(fdr.curve.approx=='direct'){
               lpfdr0<-approxfun(y.sample,w0$fdr,method='linear',rule=2)
             }else if(fdr.curve.approx=='indirect'){

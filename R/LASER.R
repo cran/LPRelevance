@@ -1,52 +1,30 @@
 LASER <-
-function(nsample=length(z), X,z, X.target, m=c(6,8), centering='LP', coef.smooth='BIC', parallel=FALSE){
+function( X,z, X.target, m=c(4,6), nsample=length(z), lp.reg.method='lm',
+                  coef.smooth='BIC', centering=TRUE,parallel=FALSE,...){
+  extraparms<-list(...)
+  if(is.null(extraparms$k) & lp.reg.method=='knn'){
+    extraparms$k<-sqrt(length(z))
+  }
+  
+  
   X<-as.matrix(X)
   X.target<-matrix(X.target,1,ncol(X))
   n<-length(z)
   zm.target<-0
   zmean<-rep(0,length(z))
-  if(is.null(centering)){
+  if(centering==FALSE){
     y<-z
-  }else if(centering=='LP'){
+  }else{
     Tx<-eLP.poly(X,m[1])
-    reg.dat=as.data.frame(cbind(z,Tx))
-    if(ncol(Tx)>50){big.flag=TRUE}else{big.flag=FALSE}
-    fit1 <- leaps::regsubsets(z~., data = reg.dat,intercept=TRUE,really.big=big.flag)
-    id<-which.min(summary(fit1)$bic)
-    coefi <- coef(fit1, id = id)
-    if(length(names(coefi))<1){
-      zmean<-0
-      zm.target<-0
-    }else{
-      zmean=cbind(rep(1,n),matrix(Tx[,names(coefi)[-1]],n,length(coefi)-1))%*%as.matrix(coefi)
-      y<-z-zmean
-      ## predicting z mean at x.target:
-      mi<-rep(1,ncol(X)+1)
-      Txapprox=matrix(0,1,ncol(Tx))
-      colnames(Txapprox)<-colnames(Tx)
-      for(i in 1:ncol(X)){
-        mi[i+1]<-min(m[1],length(unique(X[,i]))-1)
-        Txi<-Predict.LP.poly(X[,i],as.matrix(Tx[,sum(mi[1:i]):(sum(mi[1:(i+1)])-1)]),X.target[,i])
-        Txapprox[,sum(mi[1:i]):(sum(mi[1:(i+1)])-1)]=Txi
-      }
-      zm.target<-cbind(1,matrix(Txapprox[,names(coefi)[-1]],nrow=1))%*%as.matrix(coefi)
-    }
-  }else if(centering=='lm'){
-    lmfit<-lm(z~X)
-    zmean<-fitted(lmfit)
-    y<-z-zmean
-    zm.target<-matrix(c(1,X.target),nrow=1)%*%as.matrix(lmfit$coefficients)
-  }else if(centering=='spline' & ncol(X)==1){
-    x1<-as.numeric(X)
-    splinfit<-smooth.spline(x1,z,df=8)
-    zmean<-fitted(splinfit)
-    y<-z-zmean
-    xnew<-data.frame(x1=as.numeric(X.target))
-    zm.target<-predict(splinfit,xnew)$y
+    centerproc<-z.lp.center(X,Tx,z,lp.reg.method,X.target,m,extraparms)
+    y<-centerproc$y
+    z.mu.test<-centerproc$z.mu.test
+    zmean<-centerproc$zmean
+    zm.target<-as.numeric(z.mu.test)
   }
-  zm.target<-as.numeric(zm.target)
   
-  Lcoef<-LPcden(X,y,m,X.test=X.target,method=coef.smooth)
+  
+  Lcoef<-LPcden(X,y,m,X.test=X.target,method=lp.reg.method,lp.smooth=coef.smooth,k=extraparms$k)
   if(sum(abs(Lcoef))==0){
     y.sample<-y
   }else{

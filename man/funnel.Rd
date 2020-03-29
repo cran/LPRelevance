@@ -5,7 +5,7 @@
 Simulation data set.
 }
 \description{
-A simulated heterogeneous data set.
+A simulated heterogeneous data set used in our paper.
 }
 \usage{data("funnel")}
 \format{
@@ -17,7 +17,7 @@ A simulated heterogeneous data set.
   }
 }
 \references{
-Mukhopadhyay, S., and Wang, K (2019) "On The Problem of Relevance in Statistical Inference". Technical Report. 
+Mukhopadhyay, S., and Wang, K (2020) "On The Problem of Relevance in Statistical Inference". Technical Report. 
 }
 
 \keyword{datasets}

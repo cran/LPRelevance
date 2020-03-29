@@ -1,8 +1,14 @@
 rEB.proc <-
-function(X,z,X.target,z.target,m=c(6,8),niter=NULL,centering='LP', coef.smooth='BIC',
+function(X,z,X.target,z.target,m=c(4,6),niter=NULL,centering=TRUE, 
+           lp.reg.method='lm',coef.smooth='BIC',
            nsample=length(z), theta.set.prior=NULL,theta.set.post=NULL,
            LP.type='L2',g.method='DL',sd0=NULL,m.EB=8,parallel=FALSE,avg.method='mean',
-           post.curve='HPD',post.alpha=.8,color='red'){
+           post.curve='HPD',post.alpha=.8,color='red',...){
+    
+    extraparms<-list(...)
+    if(is.null(extraparms$k) & lp.reg.method=='knn'){
+      extraparms$k<-sqrt(length(z))
+    }
     
     X<-as.matrix(X)
     x0<-matrix(X.target,ncol=ncol(X))
@@ -30,9 +36,10 @@ function(X,z,X.target,z.target,m=c(6,8),niter=NULL,centering='LP', coef.smooth='
       niter=1
       avg.method='mean'
     }
-    reb_res<-Finite.rEB(X,z,x0,z0,gpar='sample',B=niter,nsample=nsample,post.alpha=post.alpha,centering=centering,
+    reb_res<-Finite.rEB(X,z,x0,z0,gpar='sample',B=niter,nsample=nsample,lp.reg.method=lp.reg.method,
+                        post.alpha=post.alpha,centering=centering,
                         theta.set.prior=theta.set.prior, theta.set.post=theta.set.post,coef.smooth=coef.smooth,
-                        sd0=sd0,m.obs=m,m.EB=m.EB,LP.type=LP.type,g.method=g.method,parallel=parallel)
+                        sd0=sd0,m.obs=m,m.EB=m.EB,LP.type=LP.type,g.method=g.method,parallel=parallel,k=extraparms$k)
     if(avg.method=='median'){
       reb_res$prior$prior.fit$ds.prior<-reb_res$prior$prior.fit$prior.med
       reb_res$posterior$post.fit$ds.pos<-reb_res$posterior$post.fit$post.med

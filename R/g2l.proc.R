@@ -1,8 +1,14 @@
 g2l.proc <-
-function(X,z,X.target=NULL,z.target=NULL,m=c(6,8),alpha=.05,niter=NULL,nsample=length(z), 
-                    approx.method="direct",ngrid=2000,centering='LP', coef.smooth='BIC',
+function(X,z,X.target=NULL,z.target=NULL,m=c(4,6),alpha=.05,niter=NULL,nsample=length(z),
+                    lp.reg.method='lm', null.scale='QQ',
+                    approx.method="direct",ngrid=2000,centering=TRUE, coef.smooth='BIC',
                     fdr.method='locfdr', plot=TRUE, rel.null='custom',
-                    locfdr.df=10,fdr.th.fixed=NULL,parallel=TRUE){
+                    locfdr.df=10,fdr.th.fixed=NULL,parallel=TRUE,...){
+  extraparms<-list(...)
+  if(is.null(extraparms$k) & lp.reg.method=='knn'){
+    extraparms$k<-sqrt(length(z))
+  }
+  
   X<-as.matrix(X)
   if(ncol(X)>1){plot.macro=FALSE}else{plot.macro=TRUE}
   
@@ -28,13 +34,15 @@ function(X,z,X.target=NULL,z.target=NULL,m=c(6,8),alpha=.05,niter=NULL,nsample=l
     if(t_name=='macro'){
       ####macro.ensemble results####
       if(iter.flag==0){
-        g2l_res<-g2l.infer(X,z,m=m,X.test=NULL,alpha=alpha,nsample=length(z), fdr.curve.approx=approx.method,
+        g2l_res<-g2l.infer(X,z,m=m,X.test=NULL,alpha=alpha,nsample=length(z), lp.reg.method=lp.reg.method,
+                           fdr.curve.approx=approx.method,null.scale=null.scale,
                            ngrid=ngrid,centering=centering,fdr.method=fdr.method, locfdr.df=locfdr.df,coef.smooth=coef.smooth,
-                           fdr.th.fixed=fdr.th.fixed,rel.null=rel.null,parallel=parallel)
+                           fdr.th.fixed=fdr.th.fixed,rel.null=rel.null,parallel=parallel,k=extraparms$k)
       }else{
-        g2l_res<-g2l.infer.boot(X,z,m=m,X.test=NULL,alpha=alpha,B=niter,nsample=length(z), fdr.curve.approx=approx.method,
-                                ngrid=ngrid,centering=centering,locfdr.df=locfdr.df,coef.smooth=coef.smooth,
-                                fdr.th.fixed=fdr.th.fixed,rel.null=rel.null,parallel=parallel)
+        g2l_res<-g2l.infer.boot(X,z,m=m,X.test=NULL,alpha=alpha,B=niter,nsample=length(z), 
+                                lp.reg.method=lp.reg.method,fdr.curve.approx=approx.method,null.scale=null.scale,
+                                ngrid=ngrid,centering=centering, locfdr.df=locfdr.df,coef.smooth=coef.smooth,
+                                fdr.th.fixed=fdr.th.fixed,rel.null=rel.null,parallel=parallel,k=extraparms$k)
       }
       macro.out<-list()
       macro.out$result<-g2l_res$fdr.z
@@ -96,13 +104,16 @@ function(X,z,X.target=NULL,z.target=NULL,m=c(6,8),alpha=.05,niter=NULL,nsample=l
     }else if(t_name=='micro'&!is.null(X.target)){
       ####individual inference results####
       if(iter.flag==0){
-        g2l_res<-g2l.infer(X,z,m=m,X.test=x0,alpha=alpha,nsample=length(z), fdr.curve.approx=approx.method,
+        g2l_res<-g2l.infer(X,z,m=m,X.test=x0,alpha=alpha,nsample=length(z), 
+                           lp.reg.method=lp.reg.method,fdr.curve.approx=approx.method, null.scale=null.scale,
                            ngrid=ngrid,centering=centering,fdr.method=fdr.method, locfdr.df=locfdr.df,
-                           fdr.th.fixed=fdr.th.fixed,rel.null=rel.null,parallel=parallel)
+                           fdr.th.fixed=fdr.th.fixed,rel.null=rel.null,parallel=parallel,k=extraparms$k)
       }else{
-        g2l_res<-g2l.infer.boot(X,z,m=m,X.test=x0,alpha=alpha,nsample=length(z),B=niter, fdr.curve.approx=approx.method,
+        g2l_res<-g2l.infer.boot(X,z,m=m,X.test=x0,alpha=alpha,nsample=length(z),
+                                lp.reg.method=lp.reg.method,B=niter, fdr.curve.approx=approx.method, 
+                                null.scale=null.scale,
                                 ngrid=ngrid,centering=centering,locfdr.df=locfdr.df,
-                                fdr.th.fixed=fdr.th.fixed,rel.null=rel.null,parallel=parallel)
+                                fdr.th.fixed=fdr.th.fixed,rel.null=rel.null,parallel=parallel,k=extraparms$k)
       }
       w <- locfdr(z,bre=200,df=10,nulltype=1,plot=0)  
       fdrpool<-approxfun(z,w$fdr,rule=2,method='linear')
