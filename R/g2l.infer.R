@@ -1,5 +1,5 @@
 g2l.infer <-
-function(X,z,X.test=NULL,m=c(6,8),alpha=.1,nsample=length(z), lp.reg.method='lm',
+  function(X,z,X.test=NULL,m=c(6,8),alpha=.1,nsample=length(z), lp.reg.method='lm',
            fdr.curve.approx="direct",null.scale='QQ',
            ngrid=2000,centering=TRUE,fdr.method="locfdr", locfdr.df=10, coef.smooth='BIC',
            fdr.th.fixed=NULL,rel.null='custom',parallel=FALSE,...){
@@ -14,7 +14,6 @@ function(X,z,X.test=NULL,m=c(6,8),alpha=.1,nsample=length(z), lp.reg.method='lm'
     X.axe<-unique(X)
     if(is.null(X.test)){X.test<-X.axe}
     
-    #centralize
     if(centering==FALSE){
       y<-z
       zmean<-rep(0,length(z))
@@ -177,9 +176,21 @@ function(X,z,X.test=NULL,m=c(6,8),alpha=.1,nsample=length(z), lp.reg.method='lm'
           }else{
             y.sample<-g2l.sampler(nsample,LP.par=t(Lcoef),Y=y,clusters=cl)
           }
-          w0<-locfdr::locfdr(y.sample,bre=200,df=15,nulltype=nulltype,plot=0)
-          y.sample.mu<-w0$fp0[2*nulltype+1,1]
-          y.sample.sig<-w0$fp0[2*nulltype+1,2]
+          
+          if(null.scale=='locfdr'){
+            w0 <- locfdr::locfdr(y.sample,bre=bre,df=df,nulltype=nulltype,plot=0)
+            parms0<-w0$fp0[2*nulltype+1,1:2]
+          }else if(null.scale=='IQR'){
+            sd0<-IQR(y.sample)/(2 * qnorm(0.75)) 
+            parms0<-c(0,sd0)
+          }else if(null.scale=='QQ'){
+            qn<-qqnorm(y.sample,plot.it = FALSE)
+            sd0 <- as.vector(MASS::rlm(qn$y~qn$x,psi =psi.bisquare,method='MM',maxit=100)$coef)[2]
+            parms0<-c(0,sd0)
+          }
+          
+          y.sample.mu<-parms0[1]
+          y.sample.sig<-parms0[2]
           y.sample.std<-(y.sample-y.sample.mu)/y.sample.sig
           pvals<-2*pnorm(abs(y.sample.std),lower.tail=FALSE)
           bh.th[i]<-get_bh_threshold(pvals,alpha=alpha)

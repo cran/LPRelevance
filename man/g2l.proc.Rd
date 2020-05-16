@@ -29,7 +29,7 @@ g2l.proc(X, z, X.target = NULL, z.target = NULL, m = c(4, 6), alpha = 0.05,
   \item{alpha}{Confidence level for determining signals.}
   \item{niter}{Number of iterations to use for each target case, each time a new set of relevance samples will be generated for analysis, and the resulting fdr curves are aggregated together by taking the mean values. Set to \code{NULL} to disable.}
   \item{nsample}{Number of relevance samples generated for each case. The default is the size of the input z-statistic.}
-  \item{lp.reg.method}{Method for estimating the relevance function and its conditional LP-Fourier coefficients. We currently support thee options: lm (inbuilt with subset selection), glmnet, and knn.}
+  \item{lp.reg.method}{Method for estimating the relevance function and its conditional LP-Fourier coefficients. We currently support three options: lm (inbuilt with subset selection), glmnet, and knn.}
   \item{null.scale}{Method of estimating null standard deviation from the laser samples. Available options: "IQR", "QQ" and "locfdr"}
   \item{approx.method}{Method used to approximate customized fdr curve, default is "direct".When set to "indirect", the customized fdr is computed by modifying pooled fdr using relevant density function.}
   \item{ngrid}{Number of gridpoints to use for computing customized fdr curve.}
@@ -40,7 +40,7 @@ g2l.proc(X, z, X.target = NULL, z.target = NULL, m = c(4, 6), alpha = 0.05,
   \item{rel.null}{How the relevant null changes with x: "custom" denotes we allow it to vary with x, and "th" denotes fixed.}
   \item{locfdr.df}{Degrees of freedom to use for \code{locfdr()}}
   \item{fdr.th.fixed}{Use fixed fdr threshold for finding signals. Default set to \code{NULL}, which finds different thresholds for different cases. }
-  \item{parallel}{Use parallel computing for obtaining the relevance samples, mainly used for very huge \code{nsample}, default if FALSE.}
+  \item{parallel}{Use parallel computing for obtaining the relevance samples, mainly used for very huge \code{nsample}, default is FALSE.}
   \item{...}{Extra parameters to pass to other functions. Currently only supports the arguments for \code{knn()}.}
 }
 
@@ -70,9 +70,9 @@ A list containing the following items:
 Mukhopadhyay, S., and Wang, K (2020) "On The Problem of Relevance in Statistical Inference". Technical Report. 
 }
 \author{
-Mukhopadhyay, S. and Wang, K.
+\packageAuthor{LPRelevance}
 
-Maintainer: Kaijun Wang <kwang2@fredhutch.org>
+Maintainer: \packageMaintainer{LPRelevance}
 }
 
 \examples{

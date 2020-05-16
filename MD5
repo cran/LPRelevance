@@ -1,4 +1,4 @@
-cb2ca3c868bcc2807e3e0b22bb851e44 *DESCRIPTION
+8050268f3957ab795bd5f0f1c6696bf2 *DESCRIPTION
 1be58d4314141c8b7b7c9177b4604a8a *NAMESPACE
 5f947a6915e67622ddbaaebcec6803d9 *R/Finite.rEB.R
 355e0c4e17425a2fc3668c7f6042e1f1 *R/LASER.R
@@ -11,7 +11,7 @@ a4237c54e025e56acc6306ae11d24002 *R/LPcden.R
 b5582df719121833477e376bbc700d64 *R/eLP.poly.predict.R
 473e9897c35a543aa0434680aed7450d *R/eLP.univar.R
 80e59fd42c3e881eb77d260084da84cf *R/fdr.thresh.R
-2b8741db9793918ed3095320b191c01c *R/g2l.infer.R
+d73d66ca05ae60850e85a650a8853bfe *R/g2l.infer.R
 e3a1684d3c9f5b2e2b4869efe85dd98a *R/g2l.infer.boot.R
 e21a2331457663f75034958f5f0d9cc7 *R/g2l.proc.R
 6cf044641fc036a401c0593581a40bf4 *R/g2l.sampler.R
@@ -19,14 +19,14 @@ f4d4f0cee2c8b76611c77d7c5ec0c304 *R/getNullProb.R
 b79140b55611f3d05bbf0e97ea4a17a3 *R/get_bh_threshold.R
 99788c69eeb82a3f4787671ac25b1988 *R/rEB.proc.R
 5304754362b932688baa52c0def8f5e1 *R/z.lp.center.R
-21b036f029ecbf6fcfb85cd8fa339fcb *build/partial.rdb
+e0a755977dd1cc0fc98ab0e1c2b95766 *build/partial.rdb
 fab6a760fa096e8c5d76c35fea49ad77 *data/data.dti.rda
 7a1cd7b085d87558b960606a4dd9fa93 *data/funnel.rda
 58f072eabd03f55037e8a71cebb44014 *data/kidney.rda
-e2c7eca3e54c97f601cb82c76d2f1c04 *man/LASER.Rd
-28085bd6b4660ca1bb5f67df4f3fc8da *man/LPRelevance-package.Rd
+fb7089f5449553b2ca880a68a24874e0 *man/LASER.Rd
+36cdf7a01c2e193e479dd42c4a366d4e *man/LPRelevance-package.Rd
 43b450a7cebfadda339e9108aa907b8c *man/data.dti.Rd
 36a42bcff44dc7a443016f870016d349 *man/funnel.Rd
-82abc48036f01178d0250acc8ffac154 *man/g2l.proc.Rd
+7c7e6aed0533ca716cddb9957860f445 *man/g2l.proc.Rd
 6841b903542a2053c3e3f950f875ed5d *man/kidney.Rd
-6d31412b0dbb50746d1d3e5065b71fb8 *man/rEB.proc.Rd
+95a47153250b47a3f64f157efae52781 *man/rEB.proc.Rd

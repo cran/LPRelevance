@@ -34,9 +34,9 @@ A list containing the following items:
 Mukhopadhyay, S., and Wang, K (2020) "On The Problem of Relevance in Statistical Inference". Technical Report. 
 }
 \author{
-Mukhopadhyay, S. and Wang, K.
+\packageAuthor{LPRelevance}
 
-Maintainer: Kaijun Wang <kwang2@fredhutch.org>
+Maintainer: \packageMaintainer{LPRelevance}
 }
 \examples{
 \donttest{
