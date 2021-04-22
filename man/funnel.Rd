@@ -2,10 +2,10 @@
 \alias{funnel}
 \docType{data}
 \title{
-Simulation data set.
+A stylized simulated example.
 }
 \description{
-A simulated heterogeneous data set used in our paper.
+A large-scale heterogeneous dataset used in our paper.
 }
 \usage{data("funnel")}
 \format{
@@ -17,7 +17,7 @@ A simulated heterogeneous data set used in our paper.
   }
 }
 \references{
-Mukhopadhyay, S., and Wang, K (2020) "On The Problem of Relevance in Statistical Inference". Technical Report. 
+Mukhopadhyay, S., and Wang, K (2021) "On The Problem of Relevance in Statistical Inference". <arXiv:2004.09588>
 }
 
 \keyword{datasets}

@@ -32,18 +32,16 @@ function(X,z,m=c(6,8),X.test=NULL,alpha=.1,lp.reg.method='lm',
   if(rel.null=='th'){nulltype<-0}else{nulltype<-1}
   
   if(null.scale=='locfdr'){
-      w.full<-locfdr::locfdr(y,bre=bre,df=df,nulltype=nulltype,plot=0)
-      p0.pool<-w.full$fp0[2*nulltype+1,]
+    w.full<-locfdr::locfdr(y,bre=bre,df=df,nulltype=nulltype,plot=0)
+    sd0<-w.full$fp0[2*nulltype+1,2]
   }else if(null.scale=='IQR'){
-      sd0<-IQR(y)/(2 * qnorm(0.75)) 
-      w.full<-locfdr::locfdr(y/sd0,df=df,nulltype=0,plot=0)
-      p0.pool<-c(0,sd0,w.full$fp0[1,3])
+    sd0<-IQR(y)/(2 * qnorm(0.75))
   }else if(null.scale=='QQ'){
-      qn<-qqnorm(y,plot.it = FALSE)
-      sd0 <- as.vector(MASS::rlm(qn$y~qn$x,psi =psi.bisquare,method='MM',maxit=100)$coef)[2]
-      w.full<-locfdr::locfdr(y/sd0,df=df,nulltype=0,plot=0)
-      p0.pool<-c(0,sd0,w.full$fp0[1,3])
+    qn<-qqnorm(y,plot.it = FALSE)
+    sd0 <- as.vector(MASS::rlm(qn$y~qn$x,psi =psi.bisquare,method='MM',maxit=100)$coef)[2]
   }
+  w.full<-locfdr::locfdr(y/sd0,df=df,nulltype=0,plot=0)
+  p0.pool<-c(0,sd0,w.full$fp0[1,3])
   fdr.pool<-approxfun(y,w.full$fdr,method='linear',rule=2)
   if(p0.pool[3]>1){p0.pool[3]<-1}
   
@@ -95,19 +93,16 @@ function(X,z,m=c(6,8),X.test=NULL,alpha=.1,lp.reg.method='lm',
           ygrid<-seq(min(y.sample,y[zmean.ind]),max(y.sample,y[zmean.ind]),length.out=ngrid)
           if(null.scale=='locfdr'){
             w0 <- locfdr::locfdr(y.sample,bre=bre,df=df,nulltype=nulltype,plot=0)
-            parms0<-w0$fp0[2*nulltype+1,]
+			sd0<-w.full$fp0[2*nulltype+1,2]
           }else if(null.scale=='IQR'){
             sd0<-IQR(y.sample)/(2 * qnorm(0.75)) 
-            y.sample0<-y.sample/sd0
-            w0 <- locfdr::locfdr(y.sample0,bre=bre,df=df,nulltype=0,plot=0)
-            parms0<-c(0,sd0,w0$fp0[1,3])
           }else if(null.scale=='QQ'){
             qn<-qqnorm(y.sample,plot.it = FALSE)
             sd0 <- as.vector(MASS::rlm(qn$y~qn$x,psi =psi.bisquare,method='MM',maxit=100)$coef)[2]
-            y.sample0<-y.sample/sd0
-            w0 <- locfdr::locfdr(y.sample0,bre=bre,df=df,nulltype=0,plot=0)
-            parms0<-c(0,sd0,w0$fp0[1,3])
           }
+		  y.sample0<-y.sample/sd0
+          w0 <- locfdr::locfdr(y.sample0,bre=bre,df=df,nulltype=0,plot=0)
+          parms0<-c(0,sd0,w0$fp0[1,3])
           if(fdr.curve.approx=='direct'){
             lpfdr_iter<-approxfun(y.sample,w0$fdr,method='linear',rule=2)
           }else if(fdr.curve.approx=='indirect'){

@@ -5,8 +5,8 @@ function( X,z, X.target, m=c(4,6), nsample=length(z), lp.reg.method='lm',
   if(is.null(extraparms$k) & lp.reg.method=='knn'){
     extraparms$k<-sqrt(length(z))
   }
-  
-  
+
+
   X<-as.matrix(X)
   X.target<-matrix(X.target,1,ncol(X))
   n<-length(z)
@@ -22,8 +22,8 @@ function( X,z, X.target, m=c(4,6), nsample=length(z), lp.reg.method='lm',
     zmean<-centerproc$zmean
     zm.target<-as.numeric(z.mu.test)
   }
-  
-  
+
+
   Lcoef<-LPcden(X,y,m,X.test=X.target,method=lp.reg.method,lp.smooth=coef.smooth,k=extraparms$k)
   if(sum(abs(Lcoef))==0){
     y.sample<-y
