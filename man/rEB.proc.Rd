@@ -49,14 +49,14 @@ A list containing the following items:
 		\item{$g.par}{Parameters for \eqn{g=N(\mu,\tau^2)}.}
 		\item{$g.method}{Method used for finding the parameter estimates \eqn{\hat{\mu}} and \eqn{\hat{\tau}^2} for \eqn{g}.}
 		\item{$LP.coef}{Reports the LP-coefficients of the relevance function \eqn{d_x(x)}.}
-		\item{}{}
+
 		\item{posterior}{Relevant empirical Bayes posterior results. }
 		\item{$post.mode}{Posterior mode for \eqn{\pi(\theta|z,\boldsymbol{x})}.}
 		\item{$post.mean}{Posterior mean for \eqn{\pi(\theta|z,\boldsymbol{x})}.}
 		\item{$post.mean.sd}{Standard error for the posterior mean, when using parametric bootstrap.}
 		\item{$HPD.interval}{The HPD interval for posterior \eqn{\pi(\theta|z,\boldsymbol{x})}.}
 		\item{$post.alpha}{same as input \code{post.alpha}.}
-		\item{}{}
+
 	\item{plots}{The plots for prior and posterior density.}
 }
 \references{

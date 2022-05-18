@@ -37,18 +37,18 @@ rEB.Finite.Bayes(X,z,X.target,z.target,m=c(4,6),m.EB=8, B=10, centering=TRUE,
 A list containing the following items:
 		\item{prior}{Relevant Finite Bayes prior results.}
 		\item{$prior.fit}{Prior density curve estimation.}
-		\item{}{}
+
 		\item{posterior}{Relevant empirical Bayes posterior results. }
 		\item{$post.fit}{Posterior density curve estimation.}
 		\item{$post.mode}{Posterior mode for \eqn{\pi(\theta|z,\boldsymbol{x})}.}
 		\item{$post.mean}{Posterior mean for \eqn{\pi(\theta|z,\boldsymbol{x})}.}
 		\item{$post.mean.sd}{Standard error for the posterior mean.}
 		\item{$HPD.interval}{The HPD interval for posterior \eqn{\pi(\theta|z,\boldsymbol{x})}.}
-		\item{}{}
+
 		\item{g.par}{Parameters for \eqn{g=N(\mu,\tau^2)}.}
 		\item{LP.coef}{Reports the LP-coefficients of the relevance function \eqn{d_x(x)}.}
 		\item{sd0}{Initial estimate for null standard errors.}
-		\item{}{}
+
 	  \item{plots}{The plots for prior and posterior density.}
 }
 \references{

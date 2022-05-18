@@ -47,23 +47,23 @@ g2l.proc(X, z, X.target = NULL, z.target = NULL, m = c(4, 6), alpha = 0.1,
 \value{
 A list containing the following items:
 	\item{macro}{Available when \code{X.target} set to \code{NULL}, contains the following items:}
-		\item{result}{A list of global inference results:}
-		\item{X}{Matrix of covariates, same as input \code{X}.}
-		\item{z}{Vector of observations, same as input \code{z}.}
-		\item{probnull}{A vector of length \eqn{n}, indicating how likely the observed z belongs to local null.}
-		\item{signal}{A binary vector of length \eqn{n}, discoveries are indicated by \eqn{1}.}
-		\item{}{}
+		\item{$result}{A list of global inference results:}
+		\item{$X}{Matrix of covariates, same as input \code{X}.}
+		\item{$z}{Vector of observations, same as input \code{z}.}
+		\item{$probnull}{A vector of length \eqn{n}, indicating how likely the observed z belongs to local null.}
+		\item{$signal}{A binary vector of length \eqn{n}, discoveries are indicated by \eqn{1}.}
+
 	\item{plots}{A list of plots for global inference:}
-		\item{signal_x}{A plot of signals discovered, marked in red}
-		\item{dps_xz}{A scatterplot of z on x, colored based on the discovery propensity scores, only available when \code{fdr.method = "locfdr"}.}
-		\item{dps_x}{A scatterplot of discovery propensity scores on x, only available when \code{fdr.method = "locfdr"}.}
-	\item{}{}
+		\item{$signal_x}{A plot of signals discovered, marked in red}
+		\item{$dps_xz}{A scatterplot of z on x, colored based on the discovery propensity scores, only available when \code{fdr.method = "locfdr"}.}
+		\item{$dps_x}{A scatterplot of discovery propensity scores on x, only available when \code{fdr.method = "locfdr"}.}
+
 	\item{micro}{Available when \code{X.target} are provided with values, contains the following items:}
-		\item{result}{Customized estimates for null probabilities for target \eqn{X} and \eqn{z}}
-		\item{result$signal}{A binary vector of length \eqn{k}, discoveries in the target cases are indicated by \eqn{1}}
-		\item{global}{Pooled global estimates for null probabilities for target \eqn{X} and \eqn{z}}
-		\item{plots}{Customized fdr plots for the target cases.}
-		\item{}{}
+		\item{$result}{Customized estimates for null probabilities for target \eqn{X} and \eqn{z}}
+		\item{$result$signal}{A binary vector of length \eqn{k}, discoveries in the target cases are indicated by \eqn{1}}
+		\item{$global}{Pooled global estimates for null probabilities for target \eqn{X} and \eqn{z}}
+		\item{$plots}{Customized fdr plots for the target cases.}
+
 	\item{\code{m.lp}}{Same as input \code{m}}
 }
 

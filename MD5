@@ -1,4 +1,4 @@
-e53be4bbb11185ecb02a79ca1cf24cdc *DESCRIPTION
+1e3f3d4c43b74ede82b42d0e4b1bef94 *DESCRIPTION
 1be58d4314141c8b7b7c9177b4604a8a *NAMESPACE
 2364333f769e0db3a019a83eeb09fa5f *R/LASER.R
 910aed3728285964907a6f3c1c3bd9bc *R/LASER.rEB.R
@@ -20,7 +20,7 @@ b79140b55611f3d05bbf0e97ea4a17a3 *R/get_bh_threshold.R
 fda8fa9886406126e7fa655455c163cc *R/rEB.Finite.Bayes.R
 d5df326484700e123baa47e18a29fb36 *R/rEB.proc.R
 5304754362b932688baa52c0def8f5e1 *R/z.lp.center.R
-6181899418f1a147419c68aaa6b37817 *build/partial.rdb
+edb2915d62c26d86ec905bd14c30bd21 *build/partial.rdb
 fab6a760fa096e8c5d76c35fea49ad77 *data/data.dti.rda
 7a1cd7b085d87558b960606a4dd9fa93 *data/funnel.rda
 58f072eabd03f55037e8a71cebb44014 *data/kidney.rda
@@ -28,7 +28,7 @@ fab6a760fa096e8c5d76c35fea49ad77 *data/data.dti.rda
 0e9f36bce5c9d78d38c05a13ef9a8813 *man/LPRelevance-package.Rd
 43b450a7cebfadda339e9108aa907b8c *man/data.dti.Rd
 1bf36533a80bc60d8a64723f688be4f8 *man/funnel.Rd
-af74591f7c5c236ed345e13937aea59b *man/g2l.proc.Rd
+8cd989aa332a2b8204daee3150f31d1b *man/g2l.proc.Rd
 6841b903542a2053c3e3f950f875ed5d *man/kidney.Rd
-aae13cea53170c4ce0da7cb3a5f8474a *man/rEB.Finite.Bayes.Rd
-fd0ec248a9e5fecde503232eab65792b *man/rEB.proc.Rd
+48415948cd41f33ee0ebb40bd8232835 *man/rEB.Finite.Bayes.Rd
+d14c2e8bfbab6a153f5f748e5e94806b *man/rEB.proc.Rd
